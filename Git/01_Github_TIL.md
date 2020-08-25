@@ -143,4 +143,13 @@ $ mkdir python
   $ git push origin master
   ```
 
-  
+
+
+
+## 5. 참고하기 좋은 github 링크
+
+- [ejolie (비전공자, 사소한 것도 프로젝트로 만들기)](https://github.com/ejolie)
+- [boost camp project (프로젝트 기록 방법)](https://github.com/connect-foundation/2019-01)
+- [Gyubin (TIL 참고하기 좋음)](https://github.com/Gyubin?tab=overview&from=2018-12-01&to=2018-12-31)
+- [rohjs(git 사이트)](https://github.com/rohjs)
+
