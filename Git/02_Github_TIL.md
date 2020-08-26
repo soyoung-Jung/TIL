@@ -79,13 +79,19 @@ t새로운 브랜치를 생성하며 이동
 
 #### 1. Fast Forward
 
+![](C:\Users\정소영\Desktop\github_repository\TIL\Git\02_Github_TIL.assets\fast forward.JPG)
+
 ??? 브랜치 개념 포인터와 함께 더 ㅏㅈㄹ알기..
 
 포인터가 빨리 감는 것처럼 이동하는 것. 하나의 브랜치에서만 커밋이 쌓인 경우에. 
 
 #### 2. Merge commit (w/o Conflict)
 
+![](C:\Users\정소영\Desktop\github_repository\TIL\Git\02_Github_TIL.assets\merge commit.JPG)
+
 #### 3. Merge Conflict
+
+![](C:\Users\정소영\Desktop\github_repository\TIL\Git\02_Github_TIL.assets\merge conflict.JPG)
 
 conflict가 나지 않게 하는 방법: 같은 파일을 건드리면 안된다.
 
