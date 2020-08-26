@@ -29,7 +29,7 @@
 
 ## 3) Shared Repo(PR) - Git Flow, Github Flow
 
-
+실습 - colabo repository 
 
 마스터로 이동해서 pull해야함.. ?!
 
