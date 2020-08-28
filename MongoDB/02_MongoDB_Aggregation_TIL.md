@@ -14,9 +14,7 @@
 
 아래는 pipeline 개념을 시각화로 나타낸 것. 
 
-<img src="C:\TIL\TIL\MongoDB\mongoAssets\다운로드.png" style="zoom: 150%;" />
-
-
+![](C:\TIL\MongoDB\assets\pipeline.png)
 
 > ### aggregation 함수의 형태
 
@@ -213,7 +211,7 @@ db.inventory.insertOne({
 db.inventory.find()
 ```
 
-![](C:\TIL\TIL\MongoDB\mongoAssets\캡처.PNG)
+![](C:\TIL\MongoDB\assets\캡처1.PNG)
 
 - $unwind함수 실행
 
@@ -225,7 +223,7 @@ db.inventory.aggregate([
 ])
 ```
 
-![](C:\TIL\TIL\MongoDB\mongoAssets\캡처1.PNG)
+![](C:\TIL\MongoDB\assets\캡처2.PNG)
 
 - $group과 함께 $unwind 실행
 
@@ -243,4 +241,4 @@ db.orders.aggregate([
 ])
 ```
 
-![](C:\TIL\TIL\MongoDB\mongoAssets\캡처2.PNG)
+![](C:\TIL\MongoDB\assets\캡처3.PNG)
