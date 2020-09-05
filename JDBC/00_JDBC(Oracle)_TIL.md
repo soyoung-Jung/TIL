@@ -140,6 +140,12 @@ finally {
 
 > ### PreparedStatement
 
+![](C:\TIL\JDBC\JDBC_PreparedStatement.PNG)
+
+sql문 안에 ?를 넣고 ?의 값은 setString(인덱스,값)으 넣어준다.(int의 경우 setInt)
+
+sql문은 prepareStatement()안에 넣고, executeUpdate();를 쓸 때는 넣지 않는다.
+
 ```java
 PreparedStatement pstmt =
 conn.preparedStatement( “ Insert into emp
