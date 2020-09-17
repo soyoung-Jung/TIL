@@ -143,6 +143,8 @@ public class User {
 - **@Column**
 
   column을 명시한다. 굳이 명시하지 않아도 변수명이 자동으로 column이 된다.
+  
+  `(unique = true)`로 column의 값이 유일한 값을 갖게 할 수 있다.
 
 > **Repository 인터페이스 작성**
 
@@ -167,7 +169,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 
 
-> JPA에 의한 데이터베이스 자동 초기화 설정
+> **JPA에 의한 데이터베이스 자동 초기화 설정**
 
 application.properties에 db초기화 방식을 설정한다. validate는 운영단계에, 그 외는 개발단계에서 사용한다.
 
@@ -185,17 +187,122 @@ spring.jpa.hibernate.ddl-auto=create|create-drop|update|validate
   엔티티와 테이블이 정상 매핑 되어 있는지를 검증한다. 
   entity 클래스에 column이 추가 되어있는데, 테이블에는 없다면 에러가 나게 된다.
 
-> JPA 테스트
+> **Optional 객체 | functional interface | lambda**
+
+- Optional 객체
+
+  - 정의
+
+    Null Point Exception을 방지하기 위한 wrapper class.  어떤 메소드로부터 리턴 받은 객체가 null 일수도 있기 때문에 if문으로 일일이 처리하기보다 Optional타입의 객체 타입으로 받는 것.
+
+  - 사용
+
+    ```java
+    public interface AccountRepository extends JpaRepository<Account, Long>{
+    	Account findByUsername(String username);
+    	Optional<Account> findByEmail(String email);
+    ```
+
+  - 메소드
+
+    - `isPresent()`: 객체가 존재한다면 true, null이라면 false
+
+    - `get()`: 내부 객체가 존재하는 경우에 쓸 수 있는 메소드로, 그 안의 객체를 꺼내올 수 있다.
+
+    - `orElseThrow()`: 내부 객체를 반환하되 존재하지 않으면 파라미터에 있는 예외를 발생시킨다. 파라미터 안에는 `lambda` 식을 사용한다.
+
+      ```java
+      Optional<Account> optEmail = repository.findByEmail("dooly@com");
+      System.out.println(optEmail.isPresent());
+      Account account3 = optEmail.orElseThrow(
+          () -> new RuntimeException("요청한 이메일 주소를 가진 Accountn가 없음!!"));
+      System.out.println(account3);
+      ```
+
+- forEach메소드 사용하기
+
+  - lambda
+
+  - method reference
+
+    ```java
+    List<Account> accountList = repository.findAll();
+    accountList.forEach(acct -> System.out.println(acct));
+    accountList.forEach(System.out::println);
+    ```
+
+    
+
+> **JPA 테스트하기** 
+
+- Spring Boot Test
+
+  두 어노테이션을 붙여서 SpringBootTest를 진행한다.
+
+  - `@RunWith(SpringRunner.class)`
+
+  - `@SpringBootTest`
+
+  ```java
+  @RunWith(SpringRunner.class)
+  @SpringBootTest
+  public class AccountRepositoryTest {
+  	
+      //Repository 주입받기
+  	@Autowired
+  	private AccountRepository repository;
+  ```
+
+- 등록(save)
+
+  ```java
+  	@Test
+  	public void account() throws Exception {
+  		//1. Account 객체 생성 -> 등록
+  		Account account = new Account();
+  		account.setUsername("lambda");
+  		account.setPassword("1234");
+  		account.setEmail("dooly@aa.com");
+  		
+  		Account addAccount = repository.save(account);//save 메소드는 등록을 하고 등록한 어카운트를 다시 반환함. 
+  		System.out.println(addAccount.getId() + " " + addAccount.getUsername());
+  		
+  	}
+  ```
+
+- 조회
+
+  `findByUserName("name")`  | `findByEmail("email")` | `findById("id")` | `findAll()`
+
+  ```java
+  @Test
+  	public void finder() {
+  		Account account = repository.findByUsername("lambda");
+  		System.out.println(account);
+  		Optional<Account> optional = repository.findById(100L);//findById(100L), findById(1L)
+  		System.out.println(optional.isPresent()); 
+  		if(optional.isPresent()) {
+  			Account account2 = optional.get();  
+  			System.out.println(account2);
+  		}
+  		Optional<Account> optEmail = repository.findByEmail("dooly@aa.com");
+  		System.out.println(optEmail.isPresent());
+  		Account account3 = optEmail.orElseThrow(() -> new RuntimeException("요청한 이메일 주소를 가진 Accountn가 없음!!"));
+  		System.out.println(account3);
+  		
+  		List<Account> accountList = repository.findAll();
+  		accountList.forEach(acct -> System.out.println(acct));
+  		accountList.forEach(System.out::println);
+          //method reference
+  
+  	}
+  ```
+
+- 업데이트
+
+  업데이트 메소드가 따로 없기 때문에, id 등으로 조회해서 있는 경우에만 객체로 받아서 그 객체를 새롭게  `set`을 한 뒤, `save()`한다.
 
 ```java
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class AccountRepositoryTest {
-	
-    //Repository 주입받기
-	@Autowired
-	private AccountRepository repository;
-	
 	//업데이트하기
 	@Test @Ignore
 	public void update() {
@@ -204,88 +311,24 @@ public class AccountRepositoryTest {
 			Account account = optional.get();
 			account.setEmail("dooly22@aa.com");
 			repository.save(account);//등록이 아니라 업데이트가되는 것임. 이미 저 아이디가 있기 때문. 
-			
-		}
-		
-	}
-	//조회하기
-	@Test
-	public void finder() {
-		Account account = repository.findByUsername("lambda");
-		System.out.println(account);
-		Optional<Account> optional = repository.findById(100L);//findById(100L), findById(1L)
-		System.out.println(optional.isPresent()); 
-		if(optional.isPresent()) {
-			Account account2 = optional.get();  
-			System.out.println(account2);
-		}
-		Optional<Account> optEmail = repository.findByEmail("dooly@aa.com");
-		System.out.println(optEmail.isPresent());
-		Account account3 = optEmail.orElseThrow(() -> new RuntimeException("요청한 이메일 주소를 가진 Accountn가 없음!!"));
-		System.out.println(account3);
-		
-		List<Account> accountList = repository.findAll();//리턴 타입이 iterable. iterable하위 클래스인 list로 받아도 됨..
-		accountList.forEach(acct -> System.out.println(acct));//consumer
-		accountList.forEach(System.out::println);//method reference
-
-	}
-	
-	
-	@Test @Ignore
-	public void account() throws Exception {
-		//1. Account 객체 생성 -> 등록
-		Account account = new Account();
-		account.setUsername("lambda");
-		account.setPassword("1234");
-		account.setEmail("dooly@aa.com");
-		
-		Account addAccount = repository.save(account);//save 메소드는 등록을 하고 등록한 어카운트를 다시 반환함. 
-		System.out.println(addAccount.getId() + " " + addAccount.getUsername());
-		
-	}
-}
-
 ```
 
-
-
-> Optional 객체 | functional interface | lambda
-
-> web MVC와 붙이기(REST 방식)
+> **web MVC와 붙이기(REST 방식)**
 
 - RestUserController
 
 ```java
-package com.jsy.myspringboot.controller;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.jsy.myspringboot.entity.User;
-import com.jsy.myspringboot.exception.ResourceNotFoundException;
-import com.jsy.myspringboot.repository.UserRepository;
-
 @RestController
 public class RestUserController {
-	private final UserRepository repository;//오토와이어 안하고, 기본 생성자에서 쟤를 받아서 주입받는 것
+	private final UserRepository repository;
 	
 	public RestUserController(UserRepository repository) {
-		this.repository = repository;
+		this.repository = repository;//@Autowired가 아닌 기본생성자로 UserRepository 주입받기.
 	}
 	
 	@PostMapping("/users")
 	public User insert(@RequestBody User addUser) {
-		return repository.save(addUser);//save는 User객체를 반환하기 때문.. 등록을 하고 바로 반환함..
+		return repository.save(addUser);
 	}
 	
 	@GetMapping("/users")
@@ -329,10 +372,68 @@ public class RestUserController {
 
 
 
+> **ReponseEntity**
+
+- 정의
+
+  *ResponseEntity* **represents the whole HTTP response: status code, headers, and body**. As a result, we can use it to fully configure the HTTP response.
+
+  보낼 메세지와 http코드를 함께 보낼 수 있다.
+
+
+
+> ### 사용자 정의 Exception
+
+`RunTimeException`을 상속받아 새로운 예외처리 클래스를 만들어 사용할 수 있다.
+
+- ResourceNotFoundException
+
+  ```java
+  @ResponseStatus(value = HttpStatus.NOT_FOUND)
+  public class ResourceNotFoundException extends RuntimeException {
+  	private String resourceName;
+  	private String fieldName;
+  	private Object fieldValue;
+  
+  	public ResourceNotFoundException(String resourceName, String fieldName, Object fieldValue) {
+  		super(String.format("%s not found with %s : '%s'", resourceName, fieldName, fieldValue));
+  		this.resourceName = resourceName;
+  		this.fieldName = fieldName;
+  		this.fieldValue = fieldValue;
+  	}
+  
+  	public String getResourceName() {
+  		return resourceName;
+  	}
+  
+  	public String getFieldName() {
+  		return fieldName;
+  	}
+  
+  	public Object getFieldValue() {
+  		return fieldValue;
+  	}
+  }
+  ```
+
+
+
+
+
 ***
 
 참고
 
+- jpa 개념
+
 https://velog.io/@adam2/JPA%EB%8A%94-%EB%8F%84%EB%8D%B0%EC%B2%B4-%EB%AD%98%EA%B9%8C-orm-%EC%98%81%EC%86%8D%EC%84%B1-hibernate-spring-data-jpa
 
 https://suhwan.dev/2019/02/24/jpa-vs-hibernate-vs-spring-data-jpa/
+
+- lambda 개념
+
+https://multifrontgarden.tistory.com/124?category=471239
+
+- ResponseEntity
+
+  https://www.baeldung.com/spring-response-entity
